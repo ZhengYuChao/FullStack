@@ -142,12 +142,32 @@ Unix文件系统有类似的数据结构：
      
      kernel : 0x34080000 \~ 0x34180000, 1 MB, 文件大小为952.8 KB
      
+
 rootfs : 0x34180000 \~ 0x34700000, 5.5 MB, 文件大小为3.85 MB
      
      app : 0x34700000 \~ 0x34FFFFFF, 9 MB, 文件大小为3.725 MB
 
-## Unix系统启动流程
+## 6. Unix系统启动流程
 
 https://www.runoob.com/linux/linux-system-boot.html
 
-## 工具
+## 7. 工具
+
+## 8. Wireless Driver移植
+
+通常，主芯片作CPU，另有两个射频芯片作2.4G和5G芯片。
+
+1. 修改无线配置文件，例如/etc/wireless/mt7663/mt7663.dat，作用可类比hotapd.conf
+2. 修改无线功率限制文件，例如/etc/wireless/mt7663/mt7663-sku.dat，防止功率超过硬件发射限制，烧坏PA，可查看接口的E2P，iwpriv ra0 e2p
+3. 修改EEPROM，主要是修改MAC，无线发射功率等，可参考MTXX_EEPROM_Guideline
+4. inmod mt7663.ko
+5. ifconfig ra0/rai0 up
+6. brctl addif br-lan ra0/rai0 
+
+本质上WIFI驱动代码编译产物是一个Kernel Loadable Module（KLM），内核模块。以.ko为后缀。
+
+inmod主要是执行module_init
+
+ifconfig ra0 up执行pNetDevOps->ndo_open，也就是MainVirtualIF_open
+
+参考链接：https://blog.csdn.net/u011212816/article/details/81137126
